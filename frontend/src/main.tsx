@@ -2,11 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css"; // ✅ THIS IS REQUIRED
+import {Provider} from "react-redux";
+import {store} from "./app/store";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <div className="min-h-screen bg-red-900">
-    <App />
-    </div>
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );

@@ -1,7 +1,10 @@
 import http from "http";
-import app from "./app.ts";
+import app from "./app";
+import { connectDB } from "./config/database";
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
+
+connectDB();
 
 const server = http.createServer(app);
 
