@@ -11,14 +11,14 @@ export default function MovieSlider() {
       {movies.map((movie) => (
         <div
           key={movie.id}
-          className="bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden group"
+          className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition group"
         >
           {/* Poster */}
-          <div className="h-56 bg-gray-300 group-hover:scale-105 transition-transform" />
+          <div className="h-56 bg-gray-200 group-hover:scale-105 transition-transform" />
 
           {/* Content */}
           <div className="p-4">
-            <h3 className="font-semibold text-lg truncate">
+            <h3 className="font-semibold text-gray-900 truncate">
               {movie.title}
             </h3>
 
@@ -26,7 +26,7 @@ export default function MovieSlider() {
               ⭐ {movie.rating} / 10
             </p>
 
-            <button className="mt-3 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium">
+            <button className="mt-4 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition">
               Book Now
             </button>
           </div>
