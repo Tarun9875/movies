@@ -1,11 +1,13 @@
+//frontend/src/App.tsx
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <div className="min-h-screen bg-red-900">
+    <div className="min-h-screen">
       <AppRoutes />
     </div>
   );
 }
 
 export default App;
+//
