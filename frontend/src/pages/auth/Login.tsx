@@ -20,14 +20,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#052f35] via-[#0f172a] to-[#312e81] font-[Inter]">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#052f35] via-[#0f172a] to-[#312e81] font-[Inter]">
 
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
         whileHover={{ scale: 1.01 }}
-        className="w-[400px] p-10 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl text-white transition-all duration-500"
+        className="w-96 p-10 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl text-white transition-all duration-500"
       >
         {/* Title */}
         <h2 className="text-3xl font-extrabold text-center tracking-wide">
@@ -77,7 +77,7 @@ export default function Login() {
           whileTap={{ scale: 0.96 }}
           onClick={handleLogin}
           disabled={loading}
-          className="mt-10 w-full bg-gradient-to-r from-emerald-400 to-teal-500 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-emerald-500/40 transition-all duration-300"
+          className="mt-10 w-full bg-linear-to-r from-emerald-400 to-teal-500 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-emerald-500/40 transition-all duration-300"
         >
           {loading ? "Logging in..." : "Login"}
         </motion.button>
