@@ -4,21 +4,19 @@ import MovieSlider from "../../components/sliders/MovieSlider";
 
 export default function Home() {
   return (
-    <PageContainer >
+    <PageContainer>
       <HeroSlider />
 
-      {/* Now Showing */}
-      <section className="px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          🎬 <span className="text-red-600">Now Showing</span>
+      <section className="px-6 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          🎬 Now Showing
         </h2>
         <MovieSlider />
       </section>
 
-      {/* Upcoming */}
-      <section className="px-6 py-10 bg-white">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          ⏳ <span className="text-red-600">Upcoming Movies</span>
+      <section className="px-6 py-8">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          ⏳ Upcoming Movies
         </h2>
         <MovieSlider />
       </section>

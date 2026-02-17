@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { loginThunk } from "../../features/auth/authSlice";
+import { GoogleLogin } from "@react-oauth/google";
+import { motion } from "framer-motion";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -13,52 +15,104 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    try {
-      await dispatch(loginThunk({ email, password })).unwrap();
-      alert("✅ Login successful");
-      navigate("/");
-    } catch (err: any) {
-      alert(err?.message || "Login failed");
-    }
+    await dispatch(loginThunk({ email, password })).unwrap();
+    navigate("/");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">
-          Login
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#052f35] via-[#0f172a] to-[#312e81] font-[Inter]">
+
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        whileHover={{ scale: 1.01 }}
+        className="w-[400px] p-10 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl text-white transition-all duration-500"
+      >
+        {/* Title */}
+        <h2 className="text-3xl font-extrabold text-center tracking-wide">
+          Welcome Back
         </h2>
+        <p className="text-center text-gray-300 mt-1 text-md">
+          Login to continue
+        </p>
 
-        <input
-          className="w-full mb-3 p-2 border rounded"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* Email */}
+        <div className="relative mt-10">
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="peer w-full bg-white/20 text-white mt-1  placeholder-transparent border border-white/30 rounded-lg px-4 py-4 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
+            placeholder="Email"
+          />
+          <label className="absolute left-4 top-4 text-gray-300 text-sm transition-all 
+            peer-focus:-top-3 peer-focus:text-xs peer-focus:text-teal-400 
+            peer-valid:-top-3 peer-valid:text-xs bg-transparent px-1  ">
+            Email
+          </label>
+        </div>
 
-        <input
-          type="password"
-          className="w-full mb-3 p-2 border rounded"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* Password */}
+        <div className="relative mt-6">
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="peer w-full bg-white/20 text-white mt-1 placeholder-transparent border border-white/30 rounded-lg px-4 py-4 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all duration-300"
+            placeholder="Password"
+          />
+          <label className="absolute left-4 top-4 text-gray-300 text-sm transition-all 
+            peer-focus:-top-3 peer-focus:text-xs peer-focus:text-teal-400 
+            peer-valid:-top-3 peer-valid:text-xs bg-transparent px-1">
+            Password
+          </label>
+        </div>
 
-        <button
+        {/* Button */}
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
           onClick={handleLogin}
           disabled={loading}
-          className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
+          className="mt-10 w-full bg-gradient-to-r from-emerald-400 to-teal-500 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-emerald-500/40 transition-all duration-300"
         >
           {loading ? "Logging in..." : "Login"}
-        </button>
+        </motion.button>
 
-        <div className="flex justify-between mt-4 text-sm">
-          <Link to="/register" className="text-red-600">
+        {/* Divider */}
+        <div className="flex items-center my-8">
+          <div className="flex-1 h-px bg-white/30" />
+          <span className="px-4 text-sm text-gray-300">OR</span>
+          <div className="flex-1 h-px bg-white/30" />
+        </div>
+
+        {/* Google */}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={(res) => console.log(res)}
+            onError={() => alert("Google Login Failed")}
+          />
+        </div>
+
+        {/* Footer Links */}
+        <div className="flex justify-between mt-8 text-sm text-gray-300">
+          <Link
+            to="/register"
+            className="hover:text-emerald-400 transition-colors duration-300"
+          >
             Create account
           </Link>
-          <Link to="/reset-password" className="text-blue-600">
-            Forgot password?
+          <Link
+            to="/reset-password"
+            className="hover:text-emerald-400 transition-colors duration-300"
+          >
+            Forgot?
           </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
