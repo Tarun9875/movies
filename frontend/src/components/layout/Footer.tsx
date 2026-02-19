@@ -2,71 +2,103 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 mt-16">
-      
-      <div className="
-        max-w-7xl mx-auto px-6 py-12 
-        grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 
-        gap-10
-      ">
-
+    <footer
+      className="mt-16"
+      style={{
+        backgroundColor: "var(--card-bg)",
+        color: "var(--text-color)",
+        borderTop: "1px solid var(--border-color)",
+      }}
+    >
+      <div
+        className="
+          max-w-7xl mx-auto px-6 py-12
+          grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4
+          gap-10
+        "
+      >
         {/* Brand */}
         <div className="text-center md:text-left">
           <h2 className="text-2xl font-extrabold text-red-600 mb-3">
             🎟️ MovieBook
           </h2>
-          <p className="text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
+          <p
+            className="text-sm leading-relaxed max-w-sm mx-auto md:mx-0"
+            style={{ color: "var(--muted-text)" }}
+          >
             Book movie tickets online for the latest movies, theaters, and shows.
             Fast, secure, and easy booking experience.
           </p>
         </div>
 
         {/* Quick Links */}
-        <div className="text-center md:text-left">
-          <h3 className="font-semibold mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/" className="hover:text-red-500">Home</Link></li>
-            <li><Link to="/movies" className="hover:text-red-500">Movies</Link></li>
-            <li><Link to="/my-bookings" className="hover:text-red-500">My Bookings</Link></li>
-            <li><Link to="/login" className="hover:text-red-500">Login / Register</Link></li>
-          </ul>
-        </div>
+        <FooterSection title="Quick Links">
+          <FooterLink to="/">Home</FooterLink>
+          <FooterLink to="/movies">Movies</FooterLink>
+          <FooterLink to="/my-bookings">My Bookings</FooterLink>
+          <FooterLink to="/login">Login / Register</FooterLink>
+        </FooterSection>
 
         {/* Support */}
-        <div className="text-center md:text-left">
-          <h3 className="font-semibold mb-4">Support</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/help" className="hover:text-red-500">Help Center</Link></li>
-            <li><Link to="/faq" className="hover:text-red-500">FAQs</Link></li>
-            <li><Link to="/terms" className="hover:text-red-500">Terms & Conditions</Link></li>
-            <li><Link to="/privacy" className="hover:text-red-500">Privacy Policy</Link></li>
-          </ul>
-        </div>
+        <FooterSection title="Support">
+          <FooterLink to="/help">Help Center</FooterLink>
+          <FooterLink to="/faq">FAQs</FooterLink>
+          <FooterLink to="/terms">Terms & Conditions</FooterLink>
+          <FooterLink to="/privacy">Privacy Policy</FooterLink>
+        </FooterSection>
 
         {/* Contact */}
-        <div className="text-center md:text-left">
-          <h3 className="font-semibold mb-4">Contact Us</h3>
+        <FooterSection title="Contact Us">
           <ul className="space-y-2 text-sm">
             <li>📍 India</li>
             <li>📧 support@moviebook.com</li>
             <li>📞 +91 98765 43210</li>
           </ul>
-
-          {/* Social Icons */}
-          <div className="flex justify-center md:justify-start gap-4 mt-4 text-lg">
-            <a href="#" className="hover:text-red-500">🌐</a>
-            <a href="#" className="hover:text-red-500">📘</a>
-            <a href="#" className="hover:text-red-500">📸</a>
-            <a href="#" className="hover:text-red-500">🐦</a>
-          </div>
-        </div>
-
+        </FooterSection>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-300 dark:border-gray-700 text-center py-4 text-sm px-4">
+      <div
+        className="text-center py-4 text-sm px-4"
+        style={{ borderTop: "1px solid var(--border-color)" }}
+      >
         © {new Date().getFullYear()} MovieBook. All rights reserved.
       </div>
     </footer>
+  );
+}
+
+/* Reusable Components */
+
+function FooterSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="text-center md:text-left">
+      <h3 className="font-semibold mb-4">{title}</h3>
+      <ul className="space-y-2 text-sm">{children}</ul>
+    </div>
+  );
+}
+
+function FooterLink({
+  to,
+  children,
+}: {
+  to: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li>
+      <Link
+        to={to}
+        className="transition-colors duration-200 hover:text-red-500"
+      >
+        {children}
+      </Link>
+    </li>
   );
 }

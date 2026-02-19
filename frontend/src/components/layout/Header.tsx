@@ -1,4 +1,5 @@
-//frontend/src/components/layout/Header.tsx
+// frontend/src/components/layout/Header.tsx
+
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import ThemeToggle from "../common/ThemeToggle";
@@ -11,7 +12,14 @@ export default function Header() {
   const { user } = useAppSelector((state) => state.auth);
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow">
+    <header
+      className="sticky top-0 z-50 shadow"
+      style={{
+        backgroundColor: "var(--card-bg)",
+        color: "var(--text-color)",
+        borderBottom: "1px solid var(--border-color)",
+      }}
+    >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="text-2xl font-extrabold text-red-600">
@@ -43,7 +51,8 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-2xl text-gray-700 dark:text-gray-200"
+          className="md:hidden text-2xl"
+          style={{ color: "var(--text-color)" }}
           onClick={() => setOpen(!open)}
         >
           {open ? "✖" : "☰"}
@@ -52,7 +61,13 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-700">
+        <div
+          className="md:hidden border-t"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--border-color)",
+          }}
+        >
           <nav className="flex flex-col px-6 py-4 gap-4">
             <NavLinks onClick={() => setOpen(false)} />
 
@@ -84,29 +99,16 @@ export default function Header() {
   );
 }
 
-/* Reusable Nav Links */
 function NavLinks({ onClick }: { onClick?: () => void }) {
   return (
     <>
-      <Link
-        to="/"
-        onClick={onClick}
-        className="text-gray-700 dark:text-gray-200 hover:text-red-500"
-      >
+      <Link to="/" onClick={onClick} className="hover:text-red-500">
         Home
       </Link>
-      <Link
-        to="/movies"
-        onClick={onClick}
-        className="text-gray-700 dark:text-gray-200 hover:text-red-500"
-      >
+      <Link to="/movies" onClick={onClick} className="hover:text-red-500">
         Movies
       </Link>
-      <Link
-        to="/my-bookings"
-        onClick={onClick}
-        className="text-gray-700 dark:text-gray-200 hover:text-red-500"
-      >
+      <Link to="/my-bookings" onClick={onClick} className="hover:text-red-500">
         My Bookings
       </Link>
     </>

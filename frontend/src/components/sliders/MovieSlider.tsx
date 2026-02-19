@@ -1,3 +1,5 @@
+// frontend/src/components/sliders/MovieSlider.tsx
+
 const movies = [
   { id: 1, title: "Avengers: Endgame", rating: "8.5" },
   { id: 2, title: "Jawan", rating: "8.1" },
@@ -11,22 +13,35 @@ export default function MovieSlider() {
       {movies.map((movie) => (
         <div
           key={movie.id}
-          className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition group"
+          className="rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group border"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--border-color)"
+          }}
         >
           {/* Poster */}
-          <div className="h-56 bg-gray-200 group-hover:scale-105 transition-transform" />
+          <div
+            className="h-56 group-hover:scale-105 transition-transform duration-300"
+            style={{ backgroundColor: "var(--border-color)" }}
+          />
 
           {/* Content */}
           <div className="p-4">
-            <h3 className="font-semibold text-gray-900 truncate">
+            <h3
+              className="font-semibold truncate"
+              style={{ color: "var(--text-color)" }}
+            >
               {movie.title}
             </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--muted-text)" }}
+            >
               ⭐ {movie.rating} / 10
             </p>
 
-            <button className="mt-4 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition">
+            <button className="mt-4 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors duration-300">
               Book Now
             </button>
           </div>
