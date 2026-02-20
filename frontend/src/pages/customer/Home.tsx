@@ -1,3 +1,4 @@
+//frontend/src/pages/customer/Home.tsx
 import PageContainer from "../../components/layout/PageContainer";
 import HeroSlider from "../../components/sliders/HeroSlider";
 import MovieSlider from "../../components/sliders/MovieSlider";

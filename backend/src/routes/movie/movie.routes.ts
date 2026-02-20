@@ -1,3 +1,4 @@
+// src/routes/movie/movie.routes.ts
 import { Router } from "express";
 import { fetchMovies, fetchMovie } from "../../controllers";
 

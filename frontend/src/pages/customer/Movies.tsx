@@ -1,30 +1,80 @@
-import { useEffect, useState } from "react";
-import { fetchMoviesAPI } from "../../features/movie/movieAPI";
-import MovieCard from "../../components/movie/MovieCard";
+import PageContainer from "../../components/layout/PageContainer";
+import MovieGrid from "../../components/movie/MovieGrid";
+import { moviesData } from "../../assets/images/movies/moviesData";
 
 export default function Movies() {
-  const [movies, setMovies] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchMoviesAPI()
-      .then((res) => setMovies(res.data.movies))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <p className="text-center mt-10">Loading movies...</p>;
-  }
+  const movies = Array.isArray(moviesData) ? moviesData : [];
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">🎬 Movies</h2>
+    <PageContainer>
+      <section className="
+        relative
+        px-6 py-20 
+        max-w-7xl mx-auto
+      ">
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {movies.map((movie) => (
-          <MovieCard key={movie._id} movie={movie} />
-        ))}
-      </div>
-    </div>
+        {/* Background Glow Effect */}
+        <div className="
+          absolute top-0 left-1/2 -translate-x-1/2
+          w-[500px] h-[300px]
+          bg-red-500/10
+          blur-3xl
+          rounded-full
+          -z-10
+        " />
+
+        {/* Header */}
+        <div className="mb-16 text-center animate-fade-in">
+
+          {/* Logo Badge */}
+          <div className="inline-flex items-center gap-3 
+            bg-red-100 dark:bg-red-900/40
+            px-5 py-2 rounded-full
+            shadow-sm
+            mb-6
+          ">
+            <span className="text-2xl">🎬</span>
+            <span className="font-semibold text-red-600 dark:text-red-400">
+              Cinema Collection
+            </span>
+          </div>
+
+          {/* Gradient Title */}
+          <h1 className="
+            text-5xl md:text-6xl font-extrabold
+            bg-gradient-to-r from-red-600 via-pink-500 to-orange-400
+            bg-clip-text text-transparent
+            tracking-tight
+          ">
+            All Movies
+          </h1>
+
+          {/* Animated Underline */}
+          <div className="
+            w-32 h-1 mx-auto mt-6
+            bg-gradient-to-r from-red-600 to-pink-500
+            rounded-full
+            animate-pulse
+          " />
+
+          {/* Subtitle */}
+          <p className="
+            mt-8 text-lg
+            text-gray-600 dark:text-gray-400
+            max-w-2xl mx-auto
+            leading-relaxed
+          ">
+            Discover trending blockbusters, upcoming releases,
+            and timeless classics. Book your favorite movie and
+            enjoy a cinematic experience like never before.
+          </p>
+
+        </div>
+
+        {/* Movie Grid */}
+        <MovieGrid movies={movies} />
+
+      </section>
+    </PageContainer>
   );
 }
