@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 interface Props {
   open: boolean;
-  setOpen: (value: boolean) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AdminSidebar({ open }: Props) {
@@ -11,46 +11,75 @@ export default function AdminSidebar({ open }: Props) {
     <aside
       className={`
         ${open ? "w-64" : "w-20"}
+        h-screen
         transition-all duration-300
-        bg-white dark:bg-gray-800
-        border-r border-gray-200 dark:border-gray-700
-        h-full
+        border-r
       `}
+      style={{
+        backgroundColor: "var(--sidebar-bg)",
+        borderColor: "var(--border-color)",
+      }}
     >
-      <div className="p-4 font-bold text-red-600 text-xl">
+      {/* Logo */}
+      <div
+        className="p-4 font-bold text-xl"
+        style={{ color: "var(--primary-color)" }}
+      >
         {open ? "🎬 Admin" : "🎬"}
       </div>
 
+      {/* Navigation */}
       <nav className="mt-6 space-y-2">
-
-        <SidebarItem icon={<Home size={20} />} label="Dashboard" open={open} to="/admin" />
-        <SidebarItem icon={<Film size={20} />} label="Movies" open={open} to="/admin/movies" />
-        <SidebarItem icon={<Calendar size={20} />} label="Shows" open={open} to="/admin/shows" />
-        <SidebarItem icon={<Users size={20} />} label="Users" open={open} to="/admin/users" />
-        <SidebarItem icon={<Settings size={20} />} label="Settings" open={open} to="/admin/settings" />
-
+        <SidebarItem
+          to="/admin"
+          icon={<Home size={20} />}
+          label="Dashboard"
+          open={open}
+        />
+        <SidebarItem
+          to="/admin/movies"
+          icon={<Film size={20} />}
+          label="Movies"
+          open={open}
+        />
+        <SidebarItem
+          to="/admin/shows"
+          icon={<Calendar size={20} />}
+          label="Shows"
+          open={open}
+        />
+        <SidebarItem
+          to="/admin/users"
+          icon={<Users size={20} />}
+          label="Users"
+          open={open}
+        />
+        <SidebarItem
+          to="/admin/settings"
+          icon={<Settings size={20} />}
+          label="Settings"
+          open={open}
+        />
       </nav>
     </aside>
   );
 }
 
-function SidebarItem({ icon, label, open, to }: any) {
+function SidebarItem({ to, icon, label, open }: any) {
   return (
     <NavLink
       to={to}
-      end
       className={({ isActive }) =>
         `
-        flex items-center gap-3
-        px-4 py-3 rounded-lg mx-2
-        transition
-        ${
-          isActive
-            ? "bg-red-600 text-white"
-            : "text-gray-700 dark:text-gray-200 hover:bg-red-100 dark:hover:bg-red-600/20"
-        }
+        flex items-center gap-3 px-4 py-3 rounded-lg mx-2
+        transition-all duration-200
+        ${isActive ? "shadow-md" : ""}
       `
       }
+      style={({ isActive }) => ({
+        backgroundColor: isActive ? "var(--primary-color)" : "transparent",
+        color: isActive ? "#fff" : "var(--text-color)",
+      })}
     >
       {icon}
       {open && <span>{label}</span>}
