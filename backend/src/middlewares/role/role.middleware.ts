@@ -1,13 +1,39 @@
-import { Request, Response, NextFunction } from "express";
+//backend/src/middlewares/role/role.middleware.ts
+import { Response, NextFunction } from "express";
+import { Request } from "express";
+
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    role: string;
+  };
+}
 
 export const roleMiddleware =
-  (roles: string[]) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+  (allowedRoles: string[]) =>
+  (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user;
 
-    if (!user || !roles.includes(user.role)) {
-      return res.status(403).json({ message: "Access denied" });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized"
+        });
+      }
+
+      if (!allowedRoles.includes(user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: Access denied"
+        });
+      }
+
+      next();
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error"
+      });
     }
-
-    next();
   };

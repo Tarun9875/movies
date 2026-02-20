@@ -7,7 +7,7 @@ import { googleAuthAPI } from "../../features/auth/authAPI";
 import { GoogleLogin } from "@react-oauth/google";
 import type { CredentialResponse } from "@react-oauth/google";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast"; // 🔥 Added
+import toast from "react-hot-toast";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -22,12 +22,21 @@ export default function Login() {
   ============================== */
   const handleLogin = async () => {
     try {
-      await dispatch(loginThunk({ email, password })).unwrap();
+      const result = await dispatch(
+        loginThunk({ email, password })
+      ).unwrap();
 
-      toast.success("Login successful 🎉"); // 🔥 Success toast
-      navigate("/");
+      toast.success("Login successful 🎉");
+
+      // 🔥 ROLE-BASED REDIRECT
+      if (result.user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
     } catch (error: any) {
-      toast.error(error?.message || "Login failed ❌"); // 🔥 Error toast
+      toast.error(error?.message || "Login failed ❌");
     }
   };
 
@@ -56,7 +65,13 @@ export default function Login() {
 
       toast.success("Google Login Successful 🎉");
 
-      navigate("/");
+      // 🔥 ROLE-BASED REDIRECT
+      if (res.data.user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
@@ -70,7 +85,7 @@ export default function Login() {
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
+        transition={{ duration: 0.7 }}
         className="w-96 p-10 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl text-white"
       >
         <h2 className="text-3xl font-extrabold text-center">
@@ -87,7 +102,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            className="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400"
           />
         </div>
 
@@ -98,7 +113,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            className="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-400"
           />
         </div>
 

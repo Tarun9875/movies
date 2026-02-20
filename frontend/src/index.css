@@ -1,6 +1,7 @@
 @import "tailwindcss";
+
 /* ================================
-   GLOBAL THEME VARIABLES
+   DEFAULT USER THEME
 ================================ */
 
 :root {
@@ -8,6 +9,7 @@
   --text-color: #111827;
   --card-bg: #f3f4f6;
   --border-color: #e5e7eb;
+  --primary-color: #ef4444; /* red for user */
 }
 
 html.dark {
@@ -15,25 +17,42 @@ html.dark {
   --text-color: #f1f5f9;
   --card-bg: #1e293b;
   --border-color: #334155;
+  --primary-color: #ef4444;
 }
 
-/* Apply globally */
+/* ================================
+   ADMIN LIGHT THEME (Dashboard Style)
+================================ */
+
+html.admin {
+  --bg-color: #f1f5f9;
+  --text-color: #0f172a;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --primary-color: #3b82f6; /* blue */
+  --sidebar-bg: #ffffff;
+}
+
+/* ================================
+   ADMIN DARK THEME
+================================ */
+
+html.admin.dark {
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --primary-color: #3b82f6;
+  --sidebar-bg: #111827;
+}
+
+/* ================================
+   GLOBAL APPLY
+================================ */
 
 html,
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-@keyframes slide {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-slide {
-  animation: slide 20s linear infinite;
 }

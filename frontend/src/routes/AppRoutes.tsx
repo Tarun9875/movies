@@ -1,3 +1,4 @@
+// src/routes/AppRoutes.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "../pages/customer/Home";
@@ -8,6 +9,10 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ResetPassword from "../pages/auth/ResetPassword";
 import NewPassword from "../pages/auth/NewPassword"; // ✅ Added
+import AdminDashboard from "../pages/admin/Dashboard";
+import ProtectedRoute from "./ProtectedRoute";
+
+
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -30,7 +35,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
+
         {/* ✅ NEW PASSWORD ROUTE */}
         <Route path="/new-password/:token" element={<NewPassword />} />
 
@@ -50,6 +55,15 @@ export default function AppRoutes() {
         <Route
           path="*"
           element={<Placeholder title="404 Not Found" />}
+        />
+        {/* ================= Admin ================= */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="ADMIN">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
         />
 
       </Routes>
