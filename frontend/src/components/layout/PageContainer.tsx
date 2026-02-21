@@ -1,3 +1,4 @@
+//frontend/src/components/layout/PageContainer.tsx
 import Header from "./Header";
 import Footer from "./Footer";
 

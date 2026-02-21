@@ -1,3 +1,4 @@
+//frontend/src/components/common/ThemeToggle.tsx
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { toggleTheme } from "../../features/theme/themeSlice";
 import { Sun, Moon } from "lucide-react";
