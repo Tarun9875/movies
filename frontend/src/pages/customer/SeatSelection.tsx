@@ -1,20 +1,27 @@
 // frontend/src/pages/customer/SeatSelection.tsx
 
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import { moviesData } from "../../assets/images/movies/moviesData";
 
 export default function SeatSelection() {
   const { showId } = useParams();
+  const location = useLocation();
   const movie = moviesData.find((m) => m.id === showId);
 
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 min
+  const { date, time } = location.state || {};
 
-  // ⏳ Countdown
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState(300);
+  const [expired, setExpired] = useState(false);
+
+  // Countdown
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      setExpired(true);
+      return;
+    }
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
@@ -30,51 +37,64 @@ export default function SeatSelection() {
   };
 
   const toggleSeat = (seat: string) => {
-    if (selectedSeats.includes(seat)) {
-      setSelectedSeats(selectedSeats.filter((s) => s !== seat));
-    } else {
-      setSelectedSeats([...selectedSeats, seat]);
-    }
+    if (expired) return;
+
+    setSelectedSeats((prev) =>
+      prev.includes(seat)
+        ? prev.filter((s) => s !== seat)
+        : [...prev, seat]
+    );
   };
+
+  const totalPrice = selectedSeats.length * 250;
 
   const renderSection = (
     title: string,
     price: number,
     rows: string[],
-    seatCount: number
+    seatCount: number,
+    color: string
   ) => (
-    <div className="mb-12">
-      <h2 className="text-center font-semibold mb-6 opacity-70">
+    <div className="mb-10">
+      <h2 className="text-center font-semibold mb-4 text-sm sm:text-base">
         ₹{price} {title}
       </h2>
 
-      {rows.map((row) => (
-        <div key={row} className="flex justify-center gap-3 mb-3">
-          {Array.from({ length: seatCount }).map((_, index) => {
-            const seatId = `${row}${index + 1}`;
-            const isSelected = selectedSeats.includes(seatId);
+      <div className="overflow-x-auto">
+        {rows.map((row) => (
+          <div
+            key={row}
+            className="flex justify-center gap-2 sm:gap-3 mb-3 min-w-max"
+          >
+            {Array.from({ length: seatCount }).map((_, index) => {
+              const seatId = `${row}${index + 1}`;
+              const isSelected = selectedSeats.includes(seatId);
 
-            return (
-              <button
-                key={seatId}
-                onClick={() => toggleSeat(seatId)}
-                className={`
-                  w-8 h-8 text-xs rounded
-                  border
-                  transition
-                  ${
-                    isSelected
-                      ? "bg-green-600 text-white"
-                      : "border-green-500 text-green-600 hover:bg-green-100"
-                  }
-                `}
-              >
-                {index + 1}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+              return (
+                <button
+                  key={seatId}
+                  disabled={expired}
+                  onClick={() => toggleSeat(seatId)}
+                  className={`
+                    w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9
+                    text-[10px] sm:text-xs
+                    rounded
+                    transition
+                    ${
+                      isSelected
+                        ? "bg-green-600 text-white"
+                        : `${color} hover:opacity-80`
+                    }
+                    ${expired ? "opacity-40 cursor-not-allowed" : ""}
+                  `}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -82,70 +102,115 @@ export default function SeatSelection() {
 
   return (
     <PageContainer>
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-xl font-semibold">
+            <h1 className="text-lg sm:text-xl font-semibold">
               {movie.title}
             </h1>
-            <p className="text-sm opacity-70">
-              Cinepolis | 07:35 PM
+            <p className="text-xs sm:text-sm opacity-70">
+              Ruchu Cinemas | {date || "Today"} | {time || "Time"}
             </p>
           </div>
 
-          <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            ⏳ {formatTime(timeLeft)}
+          <div
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold ${
+              expired
+                ? "bg-gray-400 text-white"
+                : "bg-red-500 text-white"
+            }`}
+          >
+            ⏳ {expired ? "Expired" : formatTime(timeLeft)}
           </div>
         </div>
 
-        {/* VIP */}
-        {renderSection("VIP", 500, ["L"], 14)}
+        {/* Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-        {/* Premium */}
-        {renderSection("PREMIUM", 250, ["K", "J", "I", "H", "G", "F", "E"], 20)}
+          {/* Seats Section */}
+          <div className="lg:col-span-2">
 
-        {/* Executive */}
-        {renderSection("EXECUTIVE", 230, ["D", "C", "B"], 17)}
+            {renderSection(
+              "VIP",
+              500,
+              ["L"],
+              14,
+              "bg-purple-100 border border-purple-400"
+            )}
 
-        {/* Normal */}
-        {renderSection("NORMAL", 210, ["A"], 15)}
+            {renderSection(
+              "PREMIUM",
+              250,
+              ["K", "J", "I", "H", "G", "F", "E"],
+              20,
+              "bg-blue-100 border border-blue-400"
+            )}
 
-        {/* Screen */}
-        <div className="mt-16 flex justify-center">
-          <div className="
-            w-2/3 h-16
-            bg-gradient-to-b from-blue-300 to-blue-100
-            rounded-t-full
-            shadow-inner
-            border-t-4 border-blue-400
-          " />
-        </div>
+            {renderSection(
+              "EXECUTIVE",
+              230,
+              ["D", "C", "B"],
+              17,
+              "bg-orange-100 border border-orange-400"
+            )}
 
-        <p className="text-center mt-3 text-sm opacity-60">
-          All eyes this way please 👀
-        </p>
+            {renderSection(
+              "NORMAL",
+              210,
+              ["A"],
+              15,
+              "bg-green-100 border border-green-400"
+            )}
 
-        {/* Footer Legend */}
-        <div className="flex justify-center gap-6 mt-8 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border border-green-500 rounded" />
-            Available
+            {/* Screen */}
+            <div className="mt-12 flex justify-center">
+              <div className="w-3/4 h-3 bg-gray-400 rounded-full"></div>
+            </div>
+
+            <p className="text-center mt-2 text-xs opacity-60">
+              SCREEN
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-600 rounded" />
-            Selected
+          {/* Summary Section */}
+          <div className="bg-white shadow-md rounded-xl p-6 h-fit lg:sticky lg:top-10">
+
+            <h2 className="text-base sm:text-lg font-semibold mb-4">
+              Booking Summary
+            </h2>
+
+            <p className="text-sm mb-1">
+              <strong>Seats:</strong>{" "}
+              {selectedSeats.join(", ") || "None"}
+            </p>
+
+            <p className="text-lg font-bold mt-4">
+              Total: ₹{totalPrice}
+            </p>
+
+            <button
+              disabled={selectedSeats.length === 0 || expired}
+              className="mt-6 w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:bg-gray-400"
+            >
+              Proceed to Pay
+            </button>
           </div>
         </div>
-
-        {/* Summary */}
-        <div className="mt-10 text-center font-semibold">
-          Selected Seats: {selectedSeats.join(", ") || "None"}
-        </div>
-
       </div>
+
+      {/* Mobile Bottom Bar */}
+      {selectedSeats.length > 0 && !expired && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-xl p-4 flex justify-between items-center">
+          <span className="text-sm">
+            {selectedSeats.length} Seats | ₹{totalPrice}
+          </span>
+          <button className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+            Continue
+          </button>
+        </div>
+      )}
     </PageContainer>
   );
 }

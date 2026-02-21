@@ -1,6 +1,7 @@
 // frontend/src/pages/customer/MovieDetails.tsx
 
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import { moviesData } from "../../assets/images/movies/moviesData";
 import { useAppSelector } from "../../app/hooks";
@@ -9,6 +10,10 @@ export default function MovieDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
+
+  const [showTrailer, setShowTrailer] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const movie = moviesData.find((m) => m.id === id);
 
@@ -25,13 +30,34 @@ export default function MovieDetails() {
     );
   }
 
+  // Generate next 5 days
+  const today = new Date();
+  const next5Days = [...Array(5)].map((_, i) => {
+    const d = new Date();
+    d.setDate(today.getDate() + i);
+    return d.toDateString();
+  });
+
+  const showTimes = ["10:00 AM", "01:30 PM", "04:30 PM", "07:35 PM", "10:45 PM"];
+
   const handleBookNow = () => {
+    if (!selectedDate || !selectedTime) {
+      alert("Please select date and time");
+      return;
+    }
+
     if (!user) {
       navigate("/login", {
         state: { redirectTo: `/shows/${movie.id}/seats` },
       });
     } else {
-      navigate(`/shows/${movie.id}/seats`);
+      navigate(`/shows/${movie.id}/seats`, {
+        state: {
+          movieTitle: movie.title,
+          date: selectedDate,
+          time: selectedTime,
+        },
+      });
     }
   };
 
@@ -45,17 +71,8 @@ export default function MovieDetails() {
             <img
               src={movie.poster}
               alt={movie.title}
-              className="
-                rounded-2xl
-                shadow-xl
-                w-full
-                max-w-md
-                hover:scale-105
-                transition duration-500
-              "
-              style={{
-                border: "1px solid var(--border-color)",
-              }}
+              className="rounded-2xl shadow-xl w-full max-w-md hover:scale-105 transition duration-500"
+              style={{ border: "1px solid var(--border-color)" }}
             />
           </div>
 
@@ -77,57 +94,143 @@ export default function MovieDetails() {
 
             {/* Description */}
             <p
-              className="mb-8 leading-relaxed"
+              className="mb-6 leading-relaxed"
               style={{ color: "var(--muted-text)" }}
             >
               {movie.description}
             </p>
 
-            {/* Info Grid */}
+            {/* Trailer Button */}
+            {movie.trailer && (
+              <button
+                onClick={() => setShowTrailer(true)}
+                className="mb-8 px-6 py-2 rounded-lg font-medium text-white bg-black hover:opacity-80 transition"
+              >
+                ▶ Watch Trailer
+              </button>
+            )}
+
+            {/* Movie Info */}
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
               style={{ color: "var(--text-color)" }}
             >
               <p><span className="font-semibold">🎥 Language:</span> {movie.language}</p>
               <p><span className="font-semibold">⏱ Duration:</span> {movie.duration} min</p>
               <p><span className="font-semibold">⭐ Rating:</span> {movie.rating}</p>
-              <p><span className="font-semibold">🎭 Genre:</span> {movie.genre || "Action"}</p>
-              <p><span className="font-semibold">📅 Release:</span> {movie.releaseDate || "2026"}</p>
-              <p><span className="font-semibold">🎬 Director:</span> {movie.director || "Unknown"}</p>
+              <p><span className="font-semibold">🎭 Genre:</span> {movie.genre}</p>
+              <p><span className="font-semibold">📅 Release:</span> {movie.releaseDate}</p>
+              <p><span className="font-semibold">🎬 Director:</span> {movie.director}</p>
             </div>
 
-            {/* Cast */}
-            <div className="mt-6">
-              <h3
-                className="text-lg font-semibold mb-2"
-                style={{ color: "var(--text-color)" }}
-              >
-                👥 Cast
-              </h3>
-              <p style={{ color: "var(--muted-text)" }}>
-                {movie.cast || "Lead Actor 1, Lead Actor 2"}
-              </p>
+            {/* Date Selection */}
+            <h3 className="font-semibold mb-3">📅 Select Date</h3>
+            <div className="flex flex-wrap gap-3 mb-6">
+              {next5Days.map((date) => (
+                <button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={`px-4 py-2 rounded-lg border transition ${
+                    selectedDate === date
+                      ? "bg-red-600 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {date}
+                </button>
+              ))}
             </div>
+
+            {/* Time Selection */}
+            <h3 className="font-semibold mb-3">⏰ Select Time</h3>
+            <div className="flex flex-wrap gap-3 mb-8">
+              {showTimes.map((time) => (
+                <button
+                  key={time}
+                  onClick={() => setSelectedTime(time)}
+                  className={`px-4 py-2 rounded-lg border transition ${
+                    selectedTime === time
+                      ? "bg-red-600 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+
+            {/* Cast Section */}
+            {movie.cast && movie.cast.length > 0 && (
+              <div className="mt-10">
+                <h3
+                  className="text-xl font-semibold mb-4"
+                  style={{ color: "var(--text-color)" }}
+                >
+                  👥 Cast
+                </h3>
+
+                <div className="flex gap-6 overflow-x-auto pb-2">
+                  {movie.cast.map((actor: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center min-w-[120px] hover:scale-105 transition duration-300"
+                    >
+                      <img
+                        src={actor.image}
+                        alt={actor.name}
+                        className="w-24 h-24 rounded-full object-cover shadow-md"
+                        style={{
+                          border: "2px solid var(--border-color)",
+                        }}
+                      />
+                      <p
+                        className="mt-2 text-sm font-semibold text-center"
+                        style={{ color: "var(--text-color)" }}
+                      >
+                        {actor.name}
+                      </p>
+                      <p
+                        className="text-xs text-center"
+                        style={{ color: "var(--muted-text)" }}
+                      >
+                        {actor.role}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Book Button */}
             <button
               onClick={handleBookNow}
-              className="
-                mt-10 w-full
-                py-3 rounded-xl
-                font-semibold
-                text-white
-                bg-red-600
-                hover:bg-red-700
-                hover:shadow-lg
-                hover:shadow-red-500/40
-                transition-all duration-300
-              "
+              className="mt-10 w-full py-3 rounded-xl font-semibold text-white bg-red-600 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/40 transition-all duration-300"
             >
               🎟 Book Tickets
             </button>
           </div>
         </div>
+
+        {/* Trailer Modal */}
+        {showTrailer && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="relative w-[90%] md:w-[750px] aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+              <button
+                onClick={() => setShowTrailer(false)}
+                className="absolute top-3 right-3 bg-white px-3 py-1 rounded-md shadow"
+              >
+                ✕
+              </button>
+
+              <iframe
+                src={movie.trailer?.replace("watch?v=", "embed/")}
+                title="Trailer"
+                className="w-full h-full"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
       </section>
     </PageContainer>
   );
