@@ -1,8 +1,10 @@
 // src/routes/AppRoutes.tsx
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "../pages/customer/Home";
 import Movies from "../pages/customer/Movies";
+import MovieDetails from "../pages/customer/MovieDetails";
 import SeatSelection from "../pages/customer/SeatSelection";
 
 import Login from "../pages/auth/Login";
@@ -28,7 +30,17 @@ export default function AppRoutes() {
         {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
-        <Route path="/shows/:showId/seats" element={<SeatSelection />} />
+        <Route path="/movies/:id" element={<MovieDetails />} />
+
+        {/* Seat Page (Protected Login Required) */}
+        <Route
+          path="/shows/:showId/seats"
+          element={
+            <ProtectedRoute>
+              <SeatSelection />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
@@ -46,16 +58,9 @@ export default function AppRoutes() {
           }
         >
           <Route index element={<AdminDashboard />} />
-
-          {/* MOVIES MANAGEMENT */}
           <Route path="movies" element={<AdminMovies />} />
           <Route path="movies/add" element={<AddMovie />} />
           <Route path="movies/edit/:id" element={<EditMovie />} />
-
-          {/* FUTURE */}
-          <Route path="shows" element={<div className="p-6">Manage Shows</div>} />
-          <Route path="users" element={<div className="p-6">Manage Users</div>} />
-          <Route path="settings" element={<div className="p-6">Settings</div>} />
         </Route>
 
         {/* ================= ERRORS ================= */}

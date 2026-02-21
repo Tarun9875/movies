@@ -1,9 +1,29 @@
 // frontend/src/components/movie/MovieCard.tsx
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppSelector } from "../../app/hooks";
 
-export default function MovieCard({ movie }: any) {
+interface MovieProps {
+  movie: any;
+}
+
+export default function MovieCard({ movie }: MovieProps) {
+  const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
+
   if (!movie) return null;
+
+  const handleBookNow = () => {
+    if (!user) {
+      // Not logged in → redirect to login with redirect path
+      navigate("/login", {
+        state: { redirectTo: `/shows/${movie.id}/seats` },
+      });
+    } else {
+      // Logged in → go to seat selection
+      navigate(`/movies/${movie.id}/seats`);
+    }
+  };
 
   return (
     <div
@@ -14,15 +34,15 @@ export default function MovieCard({ movie }: any) {
         overflow-hidden
         shadow-md
         hover:shadow-2xl
-        transition-all duration-300
         hover:-translate-y-2
+        transition-all duration-300
       "
       style={{
         backgroundColor: "var(--card-bg)",
         border: "1px solid var(--border-color)",
       }}
     >
-      {/* Clickable Content */}
+      {/* Clickable Section (Poster + Info) */}
       <Link to={`/movies/${movie.id}`} className="block">
         {/* Poster */}
         <div className="relative overflow-hidden">
@@ -36,22 +56,24 @@ export default function MovieCard({ movie }: any) {
             "
           />
 
-          {/* Hover overlay */}
-          <div className="
-            absolute inset-0
-            bg-gradient-to-t from-black/50 via-transparent to-transparent
-            opacity-0 group-hover:opacity-100
-            transition duration-300
-          " />
+          {/* Hover Overlay */}
+          <div
+            className="
+              absolute inset-0
+              bg-gradient-to-t from-black/50 via-transparent to-transparent
+              opacity-0 group-hover:opacity-100
+              transition duration-300
+            "
+          />
         </div>
 
-        {/* Content */}
+        {/* Movie Info */}
         <div className="p-5">
           <h2
             className="
               text-lg font-semibold
-              transition
               group-hover:text-red-500
+              transition
             "
             style={{ color: "var(--text-color)" }}
           >
@@ -73,11 +95,8 @@ export default function MovieCard({ movie }: any) {
         {/* Status + Rating */}
         <div className="flex justify-between items-center mb-4">
 
-          {/* Status Badge */}
           <span
-            className="
-              px-3 py-1 text-xs rounded-full font-medium
-            "
+            className="px-3 py-1 text-xs rounded-full font-medium"
             style={{
               backgroundColor:
                 movie.status === "NOW_SHOWING"
@@ -94,38 +113,37 @@ export default function MovieCard({ movie }: any) {
               : "Upcoming"}
           </span>
 
-          {/* ⭐ Animated Rating Badge */}
           <span
             className="
               px-3 py-1 text-xs rounded-full font-semibold
               bg-yellow-400 text-black
-              shadow-md
-              animate-pulse
+              shadow-md animate-pulse
             "
           >
             ⭐ {movie.rating}
           </span>
+
         </div>
 
-        {/* 🎬 Sticky Bottom Netflix Button */}
-        <button
+        {/* Book Now Button */}
+       {/*  <button
+          onClick={handleBookNow}
           className="
             w-full
             py-2
             rounded-lg
             font-semibold
             text-white
-            transition-all duration-300
             bg-red-600
             hover:bg-red-700
             hover:shadow-lg
             hover:shadow-red-500/40
+            transition-all duration-300
           "
-          onClick={() => window.location.href = `/booking/${movie.id}`}
         >
           Book Now
         </button>
-
+ */}
       </div>
     </div>
   );
