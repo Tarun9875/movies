@@ -15,11 +15,26 @@ import Register from "../pages/auth/Register";
 import ResetPassword from "../pages/auth/ResetPassword";
 import NewPassword from "../pages/auth/NewPassword";
 
+
+//Admin side---------------------------------
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboard from "../pages/admin/Dashboard";
 import AdminMovies from "../pages/admin/Movies";
 import AddMovie from "../pages/admin/AddMovie";
 import EditMovie from "../pages/admin/EditMovie";
+//Admin side shows
+import AdminShows from "../pages/admin/Shows";
+import AddShow from "../pages/admin/AddShow";
+
+//admin show sets
+import ShowSeats from "../pages/admin/ShowSeats";
+
+// Admin Bookings page can be added here when implemented
+import AdminBookings from "../pages/admin/Bookings";
+//admin users page can be added here when implemented
+import AdminUsers from "../pages/admin/Users";
+//admin reports page can be added here when implemented
+import AdminReports from "../pages/admin/Reports";
 
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "../pages/errors/Unauthorized";
@@ -55,14 +70,14 @@ export default function AppRoutes() {
           }
         />
 
-         <Route
+        <Route
           path="/my-bookings/:bookingId"
           element={
             <ProtectedRoute>
               <MyBookings />
             </ProtectedRoute>
           }
-        /> 
+        />
 
         {/* ✅ THIS WAS MISSING */}
         <Route
@@ -93,6 +108,21 @@ export default function AppRoutes() {
           <Route path="movies" element={<AdminMovies />} />
           <Route path="movies/add" element={<AddMovie />} />
           <Route path="movies/edit/:id" element={<EditMovie />} />
+
+          {/* Admin side show */}
+
+          <Route path="shows" element={<AdminShows />} />
+          <Route path="shows/add" element={<AddShow />} />
+          {/* admin showsets */}
+          <Route path="shows/:showId/seats" element={<ShowSeats />} />
+
+        {/*   Admin Bookings route can be added here when implemented */}
+          <Route path="bookings" element={<AdminBookings />} />
+          {/* Admin Users route can be added here when implemented */}
+          <Route path="users" element={<AdminUsers />} />
+          {/* Admin Reports route can be added here when implemented */}
+          <Route path="reports" element={<AdminReports />} />
+
         </Route>
 
         {/* ================= ERRORS ================= */}
