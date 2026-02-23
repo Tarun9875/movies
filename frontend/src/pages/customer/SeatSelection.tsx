@@ -1,16 +1,18 @@
 // frontend/src/pages/customer/SeatSelection.tsx
 
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageContainer from "../../components/layout/PageContainer";
 import { moviesData } from "../../assets/images/movies/moviesData";
 
 export default function SeatSelection() {
   const { showId } = useParams();
-  const location = useLocation();
+  const navigate = useNavigate();
   const movie = moviesData.find((m) => m.id === showId);
 
-  const { date, time } = location.state || {};
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(300);
@@ -37,7 +39,7 @@ export default function SeatSelection() {
   };
 
   const toggleSeat = (seat: string) => {
-    if (expired) return;
+    if (expired || !selectedDate || !selectedTime) return;
 
     setSelectedSeats((prev) =>
       prev.includes(seat)
@@ -48,53 +50,89 @@ export default function SeatSelection() {
 
   const totalPrice = selectedSeats.length * 250;
 
+  const next5Days = [...Array(5)].map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return d.toDateString();
+  });
+
+  const showTimes = [
+    "10:00 AM",
+    "01:30 PM",
+    "04:30 PM",
+    "07:35 PM",
+    "10:45 PM",
+  ];
+
+  const languages = ["English", "Hindi", "3D", "IMAX"];
+
+  const handleProceed = () => {
+    if (
+      selectedSeats.length === 0 ||
+      !selectedDate ||
+      !selectedTime ||
+      expired
+    )
+      return;
+
+    navigate(`/payment/${movie?.id}`, {
+      state: {
+        movieTitle: movie?.title,
+        selectedSeats,
+        selectedDate,
+        selectedTime,
+        selectedLanguage,
+        totalPrice,
+      },
+    });
+  };
+
   const renderSection = (
     title: string,
     price: number,
     rows: string[],
-    seatCount: number,
-    color: string
+    seatCount: number
   ) => (
     <div className="mb-10">
-      <h2 className="text-center font-semibold mb-4 text-sm sm:text-base">
+      <h2
+        className="text-center font-semibold mb-4"
+        style={{ color: "var(--text-color)" }}
+      >
         ₹{price} {title}
       </h2>
 
-      <div className="overflow-x-auto">
-        {rows.map((row) => (
-          <div
-            key={row}
-            className="flex justify-center gap-2 sm:gap-3 mb-3 min-w-max"
-          >
-            {Array.from({ length: seatCount }).map((_, index) => {
-              const seatId = `${row}${index + 1}`;
-              const isSelected = selectedSeats.includes(seatId);
+      {rows.map((row) => (
+        <div key={row} className="flex justify-center gap-2 mb-3">
+          {Array.from({ length: seatCount }).map((_, index) => {
+            const seatId = `${row}${index + 1}`;
+            const isSelected = selectedSeats.includes(seatId);
 
-              return (
-                <button
-                  key={seatId}
-                  disabled={expired}
-                  onClick={() => toggleSeat(seatId)}
-                  className={`
-                    w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9
-                    text-[10px] sm:text-xs
-                    rounded
-                    transition
-                    ${
-                      isSelected
-                        ? "bg-green-600 text-white"
-                        : `${color} hover:opacity-80`
-                    }
-                    ${expired ? "opacity-40 cursor-not-allowed" : ""}
-                  `}
-                >
-                  {index + 1}
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+            return (
+              <button
+                key={seatId}
+                disabled={expired || !selectedDate || !selectedTime}
+                onClick={() => toggleSeat(seatId)}
+                className="w-8 h-8 text-xs rounded transition"
+                style={{
+                  backgroundColor: isSelected
+                    ? "#16a34a"
+                    : "var(--card-bg)",
+                  color: isSelected
+                    ? "#fff"
+                    : "var(--text-color)",
+                  border: "1px solid var(--border-color)",
+                  opacity:
+                    expired || !selectedDate || !selectedTime
+                      ? 0.4
+                      : 1,
+                }}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 
@@ -102,88 +140,171 @@ export default function SeatSelection() {
 
   return (
     <PageContainer>
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
+      <div
+        className="max-w-7xl mx-auto px-4 py-10 transition-colors"
+        style={{
+          backgroundColor: "var(--background-color)",
+          color: "var(--text-color)",
+        }}
+      >
+        {/* ================= TOP SELECTION ================= */}
+        <div
+          className="rounded-xl p-6 mb-10"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <h1 className="text-xl font-semibold mb-6">
+            {movie.title}
+          </h1>
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-lg sm:text-xl font-semibold">
-              {movie.title}
-            </h1>
-            <p className="text-xs sm:text-sm opacity-70">
-              Ruchu Cinemas | {date || "Today"} | {time || "Time"}
-            </p>
+          {/* Date */}
+          <h3 className="mb-2">📅 Select Date</h3>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {next5Days.map((date) => (
+              <button
+                key={date}
+                onClick={() => setSelectedDate(date)}
+                className="px-4 py-2 rounded-lg transition"
+                style={{
+                  backgroundColor:
+                    selectedDate === date
+                      ? "#dc2626"
+                      : "var(--card-bg)",
+                  color:
+                    selectedDate === date
+                      ? "#fff"
+                      : "var(--text-color)",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                {date}
+              </button>
+            ))}
           </div>
 
+          {/* Time */}
+          <h3 className="mb-2">⏰ Select Time</h3>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {showTimes.map((time) => (
+              <button
+                key={time}
+                onClick={() => setSelectedTime(time)}
+                className="px-4 py-2 rounded-lg transition"
+                style={{
+                  backgroundColor:
+                    selectedTime === time
+                      ? "#dc2626"
+                      : "var(--card-bg)",
+                  color:
+                    selectedTime === time
+                      ? "#fff"
+                      : "var(--text-color)",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                {time}
+              </button>
+            ))}
+          </div>
+
+          {/* Language */}
+          <h3 className="mb-2">🎥 Select Language</h3>
+          <div className="flex flex-wrap gap-3">
+            {languages.map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setSelectedLanguage(lang)}
+                className="px-4 py-2 rounded-full transition"
+                style={{
+                  backgroundColor:
+                    selectedLanguage === lang
+                      ? "#000"
+                      : "var(--card-bg)",
+                  color:
+                    selectedLanguage === lang
+                      ? "#fff"
+                      : "var(--text-color)",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ================= TIMER ================= */}
+        <div
+          className="flex justify-between items-center mb-8 p-4 rounded-lg"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <p style={{ color: "var(--muted-text)" }}>
+            {selectedDate || "Select Date"} |{" "}
+            {selectedTime || "Select Time"} | {selectedLanguage}
+          </p>
+
           <div
-            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold ${
-              expired
-                ? "bg-gray-400 text-white"
-                : "bg-red-500 text-white"
-            }`}
+            className="px-4 py-2 rounded-lg text-sm font-semibold"
+            style={{
+              backgroundColor: expired ? "#6b7280" : "#dc2626",
+              color: "#fff",
+            }}
           >
             ⏳ {expired ? "Expired" : formatTime(timeLeft)}
           </div>
         </div>
 
-        {/* Responsive Layout */}
+        {/* ================= LAYOUT ================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
-          {/* Seats Section */}
           <div className="lg:col-span-2">
+            {renderSection("VIP", 500, ["L"], 14)}
+            {renderSection("PREMIUM", 250, ["K","J","I","H","G","F","E"], 20)}
+            {renderSection("EXECUTIVE", 230, ["D","C","B"], 17)}
+            {renderSection("NORMAL", 210, ["A"], 15)}
 
-            {renderSection(
-              "VIP",
-              500,
-              ["L"],
-              14,
-              "bg-purple-100 border border-purple-400"
-            )}
-
-            {renderSection(
-              "PREMIUM",
-              250,
-              ["K", "J", "I", "H", "G", "F", "E"],
-              20,
-              "bg-blue-100 border border-blue-400"
-            )}
-
-            {renderSection(
-              "EXECUTIVE",
-              230,
-              ["D", "C", "B"],
-              17,
-              "bg-orange-100 border border-orange-400"
-            )}
-
-            {renderSection(
-              "NORMAL",
-              210,
-              ["A"],
-              15,
-              "bg-green-100 border border-green-400"
-            )}
-
-            {/* Screen */}
-            <div className="mt-12 flex justify-center">
-              <div className="w-3/4 h-3 bg-gray-400 rounded-full"></div>
+            <div className="mt-10 flex justify-center">
+              <div
+                className="w-3/4 h-3 rounded-full"
+                style={{ backgroundColor: "var(--border-color)" }}
+              />
             </div>
-
-            <p className="text-center mt-2 text-xs opacity-60">
+            <p
+              className="text-center text-xs mt-2"
+              style={{ color: "var(--muted-text)" }}
+            >
               SCREEN
             </p>
           </div>
 
-          {/* Summary Section */}
-          <div className="bg-white shadow-md rounded-xl p-6 h-fit lg:sticky lg:top-10">
-
-            <h2 className="text-base sm:text-lg font-semibold mb-4">
+          {/* SUMMARY */}
+          <div
+            className="rounded-xl p-6 h-fit lg:sticky lg:top-10"
+            style={{
+              backgroundColor: "var(--card-bg)",
+              border: "1px solid var(--border-color)",
+            }}
+          >
+            <h2 className="text-lg font-semibold mb-4">
               Booking Summary
             </h2>
 
-            <p className="text-sm mb-1">
-              <strong>Seats:</strong>{" "}
-              {selectedSeats.join(", ") || "None"}
+            <p style={{ color: "var(--muted-text)" }}>
+              Date: {selectedDate || "-"}
+            </p>
+            <p style={{ color: "var(--muted-text)" }}>
+              Time: {selectedTime || "-"}
+            </p>
+            <p style={{ color: "var(--muted-text)" }}>
+              Language: {selectedLanguage}
+            </p>
+
+            <p className="mt-3">
+              Seats: {selectedSeats.join(", ") || "None"}
             </p>
 
             <p className="text-lg font-bold mt-4">
@@ -191,26 +312,30 @@ export default function SeatSelection() {
             </p>
 
             <button
-              disabled={selectedSeats.length === 0 || expired}
-              className="mt-6 w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:bg-gray-400"
+              onClick={handleProceed}
+              disabled={
+                selectedSeats.length === 0 ||
+                expired ||
+                !selectedDate ||
+                !selectedTime
+              }
+              className="mt-6 w-full py-3 rounded-lg transition"
+              style={{
+                backgroundColor:
+                  selectedSeats.length === 0 ||
+                  expired ||
+                  !selectedDate ||
+                  !selectedTime
+                    ? "#6b7280"
+                    : "#dc2626",
+                color: "#fff",
+              }}
             >
               Proceed to Pay
             </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Bottom Bar */}
-      {selectedSeats.length > 0 && !expired && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-xl p-4 flex justify-between items-center">
-          <span className="text-sm">
-            {selectedSeats.length} Seats | ₹{totalPrice}
-          </span>
-          <button className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
-            Continue
-          </button>
-        </div>
-      )}
     </PageContainer>
   );
 }

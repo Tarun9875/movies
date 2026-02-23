@@ -12,8 +12,6 @@ export default function MovieDetails() {
   const { user } = useAppSelector((state) => state.auth);
 
   const [showTrailer, setShowTrailer] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const movie = moviesData.find((m) => m.id === id);
 
@@ -30,34 +28,13 @@ export default function MovieDetails() {
     );
   }
 
-  // Generate next 5 days
-  const today = new Date();
-  const next5Days = [...Array(5)].map((_, i) => {
-    const d = new Date();
-    d.setDate(today.getDate() + i);
-    return d.toDateString();
-  });
-
-  const showTimes = ["10:00 AM", "01:30 PM", "04:30 PM", "07:35 PM", "10:45 PM"];
-
   const handleBookNow = () => {
-    if (!selectedDate || !selectedTime) {
-      alert("Please select date and time");
-      return;
-    }
-
     if (!user) {
       navigate("/login", {
         state: { redirectTo: `/shows/${movie.id}/seats` },
       });
     } else {
-      navigate(`/shows/${movie.id}/seats`, {
-        state: {
-          movieTitle: movie.title,
-          date: selectedDate,
-          time: selectedTime,
-        },
-      });
+      navigate(`/shows/${movie.id}/seats`);
     }
   };
 
@@ -115,48 +92,30 @@ export default function MovieDetails() {
               className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
               style={{ color: "var(--text-color)" }}
             >
-              <p><span className="font-semibold">🎥 Language:</span> {movie.language}</p>
-              <p><span className="font-semibold">⏱ Duration:</span> {movie.duration} min</p>
-              <p><span className="font-semibold">⭐ Rating:</span> {movie.rating}</p>
-              <p><span className="font-semibold">🎭 Genre:</span> {movie.genre}</p>
-              <p><span className="font-semibold">📅 Release:</span> {movie.releaseDate}</p>
-              <p><span className="font-semibold">🎬 Director:</span> {movie.director}</p>
-            </div>
-
-            {/* Date Selection */}
-            <h3 className="font-semibold mb-3">📅 Select Date</h3>
-            <div className="flex flex-wrap gap-3 mb-6">
-              {next5Days.map((date) => (
-                <button
-                  key={date}
-                  onClick={() => setSelectedDate(date)}
-                  className={`px-4 py-2 rounded-lg border transition ${
-                    selectedDate === date
-                      ? "bg-red-600 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {date}
-                </button>
-              ))}
-            </div>
-
-            {/* Time Selection */}
-            <h3 className="font-semibold mb-3">⏰ Select Time</h3>
-            <div className="flex flex-wrap gap-3 mb-8">
-              {showTimes.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => setSelectedTime(time)}
-                  className={`px-4 py-2 rounded-lg border transition ${
-                    selectedTime === time
-                      ? "bg-red-600 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
+              <p>
+                <span className="font-semibold">🎥 Language:</span>{" "}
+                {movie.language}
+              </p>
+              <p>
+                <span className="font-semibold">⏱ Duration:</span>{" "}
+                {movie.duration} min
+              </p>
+              <p>
+                <span className="font-semibold">⭐ Rating:</span>{" "}
+                {movie.rating}
+              </p>
+              <p>
+                <span className="font-semibold">🎭 Genre:</span>{" "}
+                {movie.genre}
+              </p>
+              <p>
+                <span className="font-semibold">📅 Release:</span>{" "}
+                {movie.releaseDate}
+              </p>
+              <p>
+                <span className="font-semibold">🎬 Director:</span>{" "}
+                {movie.director}
+              </p>
             </div>
 
             {/* Cast Section */}

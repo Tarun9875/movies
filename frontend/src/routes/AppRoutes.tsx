@@ -6,6 +6,9 @@ import Home from "../pages/customer/Home";
 import Movies from "../pages/customer/Movies";
 import MovieDetails from "../pages/customer/MovieDetails";
 import SeatSelection from "../pages/customer/SeatSelection";
+import Payment from "../pages/customer/Payment";
+//import BookingSuccess from "../pages/customer/BookingSuccess";
+import MyBookings from "../pages/customer/MyBookings";
 
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -32,12 +35,41 @@ export default function AppRoutes() {
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<MovieDetails />} />
 
-        {/* Seat Page (Protected Login Required) */}
+        {/* ================= BOOKING FLOW ================= */}
+
         <Route
           path="/shows/:showId/seats"
           element={
             <ProtectedRoute>
               <SeatSelection />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment/:showId"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
+
+         <Route
+          path="/my-bookings/:bookingId"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
+            </ProtectedRoute>
+          }
+        /> 
+
+        {/* ✅ THIS WAS MISSING */}
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
             </ProtectedRoute>
           }
         />

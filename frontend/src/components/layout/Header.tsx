@@ -1,6 +1,6 @@
 // frontend/src/components/layout/Header.tsx
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import ThemeToggle from "../common/ThemeToggle";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
@@ -10,10 +10,16 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const location = useLocation();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setOpen(false);
+  };
 
   return (
     <header
-      className="sticky top-0 z-50 shadow"
+      className="sticky top-0 z-50 backdrop-blur-lg shadow-md transition-colors"
       style={{
         backgroundColor: "var(--card-bg)",
         color: "var(--text-color)",
@@ -21,26 +27,35 @@ export default function Header() {
       }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-extrabold text-red-600">
+
+        {/* ================= LOGO ================= */}
+        <Link
+          to="/"
+          className="text-2xl font-extrabold text-red-600 tracking-wide"
+        >
           🎟️ MovieBook
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          <NavLinks />
+        {/* ================= DESKTOP NAV ================= */}
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+
+          <NavLinks currentPath={location.pathname} />
 
           {user ? (
             <button
-              onClick={() => dispatch(logout())}
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-lg transition"
+              style={{
+                backgroundColor: "var(--border-color)",
+                color: "var(--text-color)",
+              }}
             >
               Logout
             </button>
           ) : (
             <Link
               to="/login"
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
             >
               Login
             </Link>
@@ -49,7 +64,7 @@ export default function Header() {
           <ThemeToggle />
         </nav>
 
-        {/* Mobile Menu Button */}
+        {/* ================= MOBILE BUTTON ================= */}
         <button
           className="md:hidden text-2xl"
           style={{ color: "var(--text-color)" }}
@@ -59,25 +74,30 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* ================= MOBILE MENU ================= */}
       {open && (
         <div
-          className="md:hidden border-t"
+          className="md:hidden border-t animate-fadeIn"
           style={{
             backgroundColor: "var(--card-bg)",
             borderColor: "var(--border-color)",
           }}
         >
-          <nav className="flex flex-col px-6 py-4 gap-4">
-            <NavLinks onClick={() => setOpen(false)} />
+          <nav className="flex flex-col px-6 py-4 gap-4 text-sm font-medium">
+
+            <NavLinks
+              currentPath={location.pathname}
+              onClick={() => setOpen(false)}
+            />
 
             {user ? (
               <button
-                onClick={() => {
-                  dispatch(logout());
-                  setOpen(false);
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg transition"
+                style={{
+                  backgroundColor: "var(--border-color)",
+                  color: "var(--text-color)",
                 }}
-                className="px-4 py-2 bg-gray-800 text-white rounded-lg"
               >
                 Logout
               </button>
@@ -99,16 +119,33 @@ export default function Header() {
   );
 }
 
-function NavLinks({ onClick }: { onClick?: () => void }) {
+function NavLinks({
+  onClick,
+  currentPath,
+}: {
+  onClick?: () => void;
+  currentPath: string;
+}) {
+  const linkStyle = (path: string) =>
+    `transition hover:text-red-500 ${
+      currentPath === path ? "text-red-600 font-semibold" : ""
+    }`;
+
   return (
     <>
-      <Link to="/" onClick={onClick} className="hover:text-red-500">
+      <Link to="/" onClick={onClick} className={linkStyle("/")}>
         Home
       </Link>
-      <Link to="/movies" onClick={onClick} className="hover:text-red-500">
+
+      <Link to="/movies" onClick={onClick} className={linkStyle("/movies")}>
         Movies
       </Link>
-      <Link to="/my-bookings" onClick={onClick} className="hover:text-red-500">
+
+      <Link
+        to="/my-bookings"
+        onClick={onClick}
+        className={linkStyle("/my-bookings")}
+      >
         My Bookings
       </Link>
     </>
