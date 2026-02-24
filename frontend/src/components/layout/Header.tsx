@@ -148,6 +148,20 @@ function NavLinks({
       >
         My Bookings
       </Link>
+      <Link
+        to="/contact"
+        onClick={onClick} 
+        className={linkStyle("/contact")}
+      >
+        Contact
+      </Link>
+      <Link
+        to="/about"
+        onClick={onClick} 
+        className={linkStyle("/about")}
+      >
+        About
+      </Link>
     </>
   );
 }

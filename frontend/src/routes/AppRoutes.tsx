@@ -15,6 +15,10 @@ import Register from "../pages/auth/Register";
 import ResetPassword from "../pages/auth/ResetPassword";
 import NewPassword from "../pages/auth/NewPassword";
 
+//contact and about pages
+import Contact from "../pages/customer/Contact";
+import About from "../pages/customer/About";
+
 
 //Admin side---------------------------------
 import AdminLayout from "../pages/admin/AdminLayout";
@@ -25,6 +29,7 @@ import EditMovie from "../pages/admin/EditMovie";
 //Admin side shows
 import AdminShows from "../pages/admin/Shows";
 import AddShow from "../pages/admin/AddShow";
+import EditShow from "../pages/admin/EditShow";
 
 //admin show sets
 import ShowSeats from "../pages/admin/ShowSeats";
@@ -35,6 +40,8 @@ import AdminBookings from "../pages/admin/Bookings";
 import AdminUsers from "../pages/admin/Users";
 //admin reports page can be added here when implemented
 import AdminReports from "../pages/admin/Reports";
+//admin settings page
+import AdminSettings from "../pages/admin/Settings";
 
 import ProtectedRoute from "./ProtectedRoute";
 import Unauthorized from "../pages/errors/Unauthorized";
@@ -95,6 +102,10 @@ export default function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/new-password/:token" element={<NewPassword />} />
 
+          {/* ================= CUSTOMER PAGES ================= */}
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+
         {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
@@ -113,6 +124,7 @@ export default function AppRoutes() {
 
           <Route path="shows" element={<AdminShows />} />
           <Route path="shows/add" element={<AddShow />} />
+          <Route path="shows/edit/:id" element={<EditShow />} />
           {/* admin showsets */}
           <Route path="shows/:showId/seats" element={<ShowSeats />} />
 
@@ -122,6 +134,8 @@ export default function AppRoutes() {
           <Route path="users" element={<AdminUsers />} />
           {/* Admin Reports route can be added here when implemented */}
           <Route path="reports" element={<AdminReports />} />
+          {/* Admin Settings route */}
+          <Route path="settings" element={<AdminSettings />} />
 
         </Route>
 
