@@ -2,6 +2,7 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../app/hooks";
+import { BASE_URL } from "../../services/axios";
 
 interface MovieProps {
   movie: any;
@@ -13,27 +14,34 @@ export default function MovieCard({ movie }: MovieProps) {
 
   if (!movie) return null;
 
+  // 🔥 Fix ID issue (MongoDB uses _id)
+  const movieId = movie._id || movie.id;
+
+  // 🔥 Fix image path
+  const imageUrl = movie.poster
+    ? movie.poster.startsWith("http")
+      ? movie.poster
+      : `${BASE_URL}${movie.poster}`
+    : "/no-image.png";
+
   const handleBookNow = () => {
+    if (movie.status !== "NOW_SHOWING") return;
+
     if (!user) {
-      // Not logged in → redirect to login with redirect path
       navigate("/login", {
-        state: { redirectTo: `/shows/${movie.id}/seats` },
+        state: { redirectTo: `/movies/${movieId}` },
       });
     } else {
-      // Logged in → go to seat selection
-      navigate(`/movies/${movie.id}/seats`);
+      navigate(`/movies/${movieId}`);
     }
   };
 
   return (
     <div
       className="
-        group
-        flex flex-col
-        rounded-2xl
-        overflow-hidden
-        shadow-md
-        hover:shadow-2xl
+        group flex flex-col
+        rounded-2xl overflow-hidden
+        shadow-md hover:shadow-2xl
         hover:-translate-y-2
         transition-all duration-300
       "
@@ -42,12 +50,12 @@ export default function MovieCard({ movie }: MovieProps) {
         border: "1px solid var(--border-color)",
       }}
     >
-      {/* Clickable Section (Poster + Info) */}
-      <Link to={`/movies/${movie.id}`} className="block">
+      {/* CLICKABLE AREA */}
+      <Link to={`/movies/${movieId}`} className="block">
         {/* Poster */}
         <div className="relative overflow-hidden">
           <img
-            src={movie.poster}
+            src={imageUrl}
             alt={movie.title}
             className="
               h-72 w-full object-cover
@@ -56,11 +64,11 @@ export default function MovieCard({ movie }: MovieProps) {
             "
           />
 
-          {/* Hover Overlay */}
+          {/* Overlay */}
           <div
             className="
               absolute inset-0
-              bg-gradient-to-t from-black/50 via-transparent to-transparent
+              bg-gradient-to-t from-black/60 via-transparent to-transparent
               opacity-0 group-hover:opacity-100
               transition duration-300
             "
@@ -115,35 +123,35 @@ export default function MovieCard({ movie }: MovieProps) {
 
           <span
             className="
-              px-3 py-1 text-xs rounded-full font-semibold
-              bg-yellow-400 text-black
-              shadow-md animate-pulse
+              px-3 py-1 text-xs rounded-full
+              font-semibold bg-yellow-400 text-black
+              shadow-md
             "
           >
-            ⭐ {movie.rating}
+            ⭐ {movie.rating || "N/A"}
           </span>
 
         </div>
 
-        {/* Book Now Button */}
-       {/*  <button
+        {/* Book Button */}
+        <button
           onClick={handleBookNow}
-          className="
-            w-full
-            py-2
-            rounded-lg
-            font-semibold
-            text-white
-            bg-red-600
-            hover:bg-red-700
-            hover:shadow-lg
-            hover:shadow-red-500/40
+          disabled={movie.status !== "NOW_SHOWING"}
+          className={`
+            w-full py-2 rounded-lg font-semibold text-white
             transition-all duration-300
-          "
+            ${
+              movie.status === "NOW_SHOWING"
+                ? "bg-red-600 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/40"
+                : "bg-gray-400 cursor-not-allowed"
+            }
+          `}
         >
-          Book Now
+          {movie.status === "NOW_SHOWING"
+            ? "Book Now"
+            : "Coming Soon"}
         </button>
- */}
+
       </div>
     </div>
   );

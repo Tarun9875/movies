@@ -1,3 +1,4 @@
+//frontend/src/components/movie/MovieGrid.tsx
 import MovieCard from "./MovieCard";
 
 interface Movie {

@@ -1,10 +1,25 @@
-// src/routes/movie/movie.routes.ts
 import { Router } from "express";
-import { fetchMovies, fetchMovie } from "../../controllers";
+import {
+  getMovies,
+  getSingleMovie,
+  updateMovie,
+  createMovie,
+  deleteMovie,
+} from "../../controllers/movie/movie.controller";
+import { upload } from "../../config/multer";
 
 const router = Router();
 
-router.get("/", fetchMovies);          // GET all movies
-router.get("/:id", fetchMovie);        // GET movie by id
+// 🔥 IMPORTANT: "/" first
+router.get("/", getMovies);
+
+// 🔥 THIS MUST EXIST
+router.get("/:id", getSingleMovie);
+
+router.post("/", upload.single("poster"), createMovie);
+
+router.put("/:id", upload.single("poster"), updateMovie);
+
+router.delete("/:id", deleteMovie);
 
 export default router;

@@ -1,5 +1,8 @@
+// frontend/src/pages/admin/AddMovie.tsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../../services/axios";
 
 export default function AddMovie() {
@@ -12,93 +15,181 @@ export default function AddMovie() {
     language: "",
     rating: "",
     releaseDate: "",
-    status: "NOW_SHOWING"
+    status: "NOW_SHOWING",
   });
 
   const [poster, setPoster] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  // ================= HANDLE CHANGE =================
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // ================= POSTER PREVIEW =================
+  const handlePosterChange = (file: File | null) => {
+    if (!file) return;
+    setPoster(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  // ================= VALIDATION =================
+  const validateForm = () => {
+    if (!form.title || !form.language || !form.duration) {
+      toast.error("Please fill all required fields");
+      return false;
+    }
+    if (!poster) {
+      toast.error("Please upload a movie poster");
+      return false;
+    }
+    return true;
+  };
+
+  // ================= SUBMIT =================
   const handleSubmit = async () => {
-    const formData = new FormData();
+    if (!validateForm()) return;
 
-    Object.entries(form).forEach(([key, value]) =>
-      formData.append(key, value)
-    );
+    try {
+      setLoading(true);
 
-    if (poster) formData.append("poster", poster);
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
 
-    await api.post("/movies", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
+      if (poster) formData.append("poster", poster);
 
-    navigate("/admin/movies");
+      await api.post("/movies", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Movie added successfully 🎉");
+      navigate("/admin/movies");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to add movie");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-gray-900 p-6 rounded-xl shadow">
-      <h1 className="text-2xl font-bold text-white mb-6">
+    <div
+      className="max-w-4xl mx-auto p-8 rounded-xl shadow-xl"
+      style={{
+        backgroundColor: "var(--card-bg)",
+        border: "1px solid var(--border-color)",
+        color: "var(--text-color)",
+      }}
+    >
+      <h1 className="text-3xl font-bold mb-6">
         🎬 Add New Movie
       </h1>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-5">
 
         <input
-          placeholder="Title"
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          name="title"
+          placeholder="Movie Title *"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
         <input
-          placeholder="Language"
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, language: e.target.value })}
+          name="language"
+          placeholder="Language *"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
         <input
-          placeholder="Duration (min)"
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, duration: e.target.value })}
+          name="duration"
+          placeholder="Duration (min) *"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
         <input
-          placeholder="Rating"
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, rating: e.target.value })}
+          name="rating"
+          placeholder="Rating (e.g. 8.5)"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
         <input
           type="date"
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, releaseDate: e.target.value })}
+          name="releaseDate"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
         <select
-          className="p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
+          name="status"
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         >
           <option value="NOW_SHOWING">Now Showing</option>
           <option value="UPCOMING">Upcoming</option>
         </select>
 
         <textarea
+          name="description"
           placeholder="Description"
-          className="md:col-span-2 p-2 rounded bg-gray-800 text-white"
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="md:col-span-2 p-3 rounded-lg"
+          style={{ backgroundColor: "var(--input-bg)" }}
+          onChange={handleChange}
         />
 
-        <input
-          type="file"
-          className="md:col-span-2 text-white"
-          onChange={(e) => setPoster(e.target.files?.[0] || null)}
-        />
+        <div className="md:col-span-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              handlePosterChange(e.target.files?.[0] || null)
+            }
+          />
+        </div>
 
+        {preview && (
+          <div className="md:col-span-2">
+            <img
+              src={preview}
+              alt="Preview"
+              className="h-60 rounded-lg shadow-lg"
+            />
+          </div>
+        )}
       </div>
 
-      <button
-        onClick={handleSubmit}
-        className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg"
-      >
-        Save Movie
-      </button>
+      <div className="flex gap-4 mt-8">
+        <button
+          onClick={() => navigate("/admin/movies")}
+          className="flex-1 py-3 rounded-lg"
+          style={{
+            backgroundColor: "var(--border-color)",
+          }}
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="flex-1 py-3 rounded-lg text-white"
+          style={{
+            backgroundColor: "#dc2626",
+          }}
+        >
+          {loading ? "Saving..." : "Save Movie"}
+        </button>
+      </div>
     </div>
   );
 }

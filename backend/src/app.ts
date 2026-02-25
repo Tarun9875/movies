@@ -9,6 +9,7 @@ app.use(cors(corsOptions)); // ✅ IMPORTANT
 app.use(express.json());
 
 app.use("/api", routes);
+app.use("/uploads", express.static("src/uploads"));
 
 app.get("/", (_req, res) => {
   res.send("Movie Booking Backend API is running 🚀");

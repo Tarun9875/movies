@@ -1,11 +1,10 @@
-// src/models/Movie.model.ts
+
 import mongoose from "mongoose";
 
 const movieSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: String,
-    poster: String,
     duration: Number,
     language: String,
     rating: Number,
@@ -13,8 +12,9 @@ const movieSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["NOW_SHOWING", "UPCOMING"],
-      default: "NOW_SHOWING"
-    }
+      default: "NOW_SHOWING",
+    },
+    poster: { type: String, required: true },
   },
   { timestamps: true }
 );

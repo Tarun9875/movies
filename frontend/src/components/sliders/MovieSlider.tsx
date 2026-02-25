@@ -1,52 +1,79 @@
 // frontend/src/components/sliders/MovieSlider.tsx
 
-const movies = [
-  { id: 1, title: "Avengers: Endgame", rating: "8.5" },
-  { id: 2, title: "Jawan", rating: "8.1" },
-  { id: 3, title: "KGF Chapter 2", rating: "8.3" },
-  { id: 4, title: "Inception", rating: "8.8" }
-];
+import { useEffect, useState } from "react";
+import api from "../../services/axios";
+import MovieGrid from "../movie/MovieGrid";
 
 export default function MovieSlider() {
+  const [nowShowing, setNowShowing] = useState<any[]>([]);
+  const [upcoming, setUpcoming] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const res = await api.get("/movies");
+        const movies = res.data.movies;
+
+        setNowShowing(
+          movies.filter(
+            (movie: any) => movie.status === "NOW_SHOWING"
+          )
+        );
+
+        setUpcoming(
+          movies.filter(
+            (movie: any) => movie.status === "UPCOMING"
+          )
+        );
+      } catch (error) {
+        console.error("Failed to load movies");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-lg">Loading movies...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-      {movies.map((movie) => (
-        <div
-          key={movie.id}
-          className="rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group border"
-          style={{
-            backgroundColor: "var(--card-bg)",
-            borderColor: "var(--border-color)"
-          }}
-        >
-          {/* Poster */}
-          <div
-            className="h-56 group-hover:scale-105 transition-transform duration-300"
-            style={{ backgroundColor: "var(--border-color)" }}
-          />
+    <div className="space-y-16">
 
-          {/* Content */}
-          <div className="p-4">
-            <h3
-              className="font-semibold truncate"
-              style={{ color: "var(--text-color)" }}
-            >
-              {movie.title}
-            </h3>
+      {/* NOW SHOWING */}
+      {nowShowing.length > 0 && (
+        <section>
+          <h2
+            className="text-3xl font-bold text-center mb-10"
+            style={{ color: "var(--text-color)" }}
+          >
+            🎬 Now Showing
+          </h2>
 
-            <p
-              className="text-sm mt-1"
-              style={{ color: "var(--muted-text)" }}
-            >
-              ⭐ {movie.rating} / 10
-            </p>
+          <MovieGrid movies={nowShowing} />
+        </section>
+      )}
 
-            <button className="mt-4 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors duration-300">
-              Book Now
-            </button>
-          </div>
-        </div>
-      ))}
+      {/* UPCOMING */}
+      {upcoming.length > 0 && (
+        <section>
+          <h2
+            className="text-3xl font-bold text-center mb-10"
+            style={{ color: "var(--text-color)" }}
+          >
+            🎥 Upcoming Movies
+          </h2>
+
+          <MovieGrid movies={upcoming} />
+        </section>
+      )}
     </div>
   );
 }
