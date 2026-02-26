@@ -1,26 +1,24 @@
-// frontend/src/pages/admin/Movies.tsx
-
 import { useEffect, useState } from "react";
-import api from "../../services/axios";
+import api, { BASE_URL } from "../../services/axios";
 import { Link } from "react-router-dom";
 
 export default function AdminMovies() {
   const [movies, setMovies] = useState<any[]>([]);
   const [filteredMovies, setFilteredMovies] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(""); // ✅ FIXED
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ================= FETCH =================
+  /* ================= FETCH MOVIES ================= */
   const fetchMovies = async () => {
     try {
       setLoading(true);
       const res = await api.get("/movies");
-      setMovies(res.data.movies);
-      setFilteredMovies(res.data.movies);
+      setMovies(res.data.movies || []);
+      setFilteredMovies(res.data.movies || []);
       setError("");
-    } catch (err) {
+    } catch {
       setError("Failed to load movies.");
     } finally {
       setLoading(false);
@@ -31,7 +29,7 @@ export default function AdminMovies() {
     fetchMovies();
   }, []);
 
-  // ================= SEARCH + FILTER =================
+  /* ================= SEARCH + FILTER ================= */
   useEffect(() => {
     let updated = movies;
 
@@ -50,7 +48,7 @@ export default function AdminMovies() {
     setFilteredMovies(updated);
   }, [search, statusFilter, movies]);
 
-  // ================= DELETE =================
+  /* ================= DELETE ================= */
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this movie?")) return;
 
@@ -62,7 +60,7 @@ export default function AdminMovies() {
     }
   };
 
-  // ================= TOGGLE STATUS =================
+  /* ================= TOGGLE STATUS ================= */
   const toggleStatus = async (movie: any) => {
     const newStatus =
       movie.status === "NOW_SHOWING"
@@ -71,7 +69,6 @@ export default function AdminMovies() {
 
     try {
       await api.put(`/movies/${movie._id}`, {
-        ...movie,
         status: newStatus,
       });
       fetchMovies();
@@ -81,10 +78,7 @@ export default function AdminMovies() {
   };
 
   return (
-    <div
-      className="transition-colors"
-      style={{ color: "var(--text-color)" }}
-    >
+    <div style={{ color: "var(--text-color)" }}>
       {/* ================= HEADER ================= */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold">
@@ -171,7 +165,11 @@ export default function AdminMovies() {
             }}
           >
             <img
-              src={`http://localhost:5000${movie.poster}`}
+              src={
+                movie.poster
+                  ? `${BASE_URL}${movie.poster}`
+                  : "https://via.placeholder.com/400x600?text=No+Image"
+              }
               alt={movie.title}
               className="h-60 w-full object-cover"
             />
@@ -202,44 +200,58 @@ export default function AdminMovies() {
                   {movie.status}
                 </span>
 
-                <span>⭐ {movie.rating}</span>
+                <span>⭐ {movie.rating || "N/A"}</span>
               </div>
 
-              {/* ACTIONS */}
-              <div className="flex gap-2">
+              {/* ================= ACTIONS ================= */}
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <Link
+                    to={`/admin/movies/edit/${movie._id}`}
+                    className="flex-1 text-center py-2 rounded-lg"
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "#fff",
+                    }}
+                  >
+                    Edit
+                  </Link>
+
+                  <button
+                    onClick={() => handleDelete(movie._id)}
+                    className="flex-1 py-2 rounded-lg"
+                    style={{
+                      backgroundColor: "#dc2626",
+                      color: "#fff",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                {/* ✅ FIXED ROUTE STRUCTURE */}
                 <Link
-                  to={`/admin/movies/edit/${movie._id}`}
-                  className="flex-1 text-center py-2 rounded-lg"
+                  to={`/admin/movies/${movie._id}/details`}
+                  className="w-full text-center py-2 rounded-lg"
                   style={{
-                    backgroundColor: "#2563eb",
+                    backgroundColor: "#7c3aed",
                     color: "#fff",
                   }}
                 >
-                  Edit
+                  Add Movie Detail
                 </Link>
 
                 <button
-                  onClick={() => handleDelete(movie._id)}
-                  className="flex-1 py-2 rounded-lg"
+                  onClick={() => toggleStatus(movie)}
+                  className="w-full py-2 rounded-lg"
                   style={{
-                    backgroundColor: "#dc2626",
-                    color: "#fff",
+                    backgroundColor: "var(--border-color)",
+                    color: "var(--text-color)",
                   }}
                 >
-                  Delete
+                  Toggle Status
                 </button>
               </div>
-
-              <button
-                onClick={() => toggleStatus(movie)}
-                className="w-full mt-3 py-2 rounded-lg"
-                style={{
-                  backgroundColor: "var(--border-color)",
-                  color: "var(--text-color)",
-                }}
-              >
-                Toggle Status
-              </button>
             </div>
           </div>
         ))}

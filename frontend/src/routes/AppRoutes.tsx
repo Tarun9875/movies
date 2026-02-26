@@ -26,6 +26,7 @@ import AdminDashboard from "../pages/admin/Dashboard";
 import AdminMovies from "../pages/admin/Movies";
 import AddMovie from "../pages/admin/AddMovie";
 import EditMovie from "../pages/admin/EditMovie";
+import AdminMovieDetailForm from "../pages/admin/MovieDetail";
 //Admin side shows
 import AdminShows from "../pages/admin/Shows";
 import AddShow from "../pages/admin/AddShow";
@@ -119,7 +120,7 @@ export default function AppRoutes() {
           <Route path="movies" element={<AdminMovies />} />
           <Route path="movies/add" element={<AddMovie />} />
           <Route path="movies/edit/:id" element={<EditMovie />} />
-
+          <Route path="movies/:id/details" element={<AdminMovieDetailForm />} />
           {/* Admin side show */}
 
           <Route path="shows" element={<AdminShows />} />

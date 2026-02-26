@@ -1,25 +1,52 @@
 import { Router } from "express";
 import {
   getMovies,
-  getSingleMovie,
+  getMovieById,
   updateMovie,
   createMovie,
   deleteMovie,
+  addMovieDetails,
+  updateMovieDetails,
 } from "../../controllers/movie/movie.controller";
 import { upload } from "../../config/multer";
 
 const router = Router();
 
-// 🔥 IMPORTANT: "/" first
+/* ================= GET ROUTES ================= */
 router.get("/", getMovies);
+router.get("/:id", getMovieById);
 
-// 🔥 THIS MUST EXIST
-router.get("/:id", getSingleMovie);
-
+/* ================= BASIC MOVIE ================= */
 router.post("/", upload.single("poster"), createMovie);
 
 router.put("/:id", upload.single("poster"), updateMovie);
 
 router.delete("/:id", deleteMovie);
+
+/* ================= MOVIE DETAILS ================= */
+/*
+Handles:
+- trailer
+- genre
+- director
+- cast (JSON string)
+- castImages (multiple images)
+*/
+
+router.post(
+  "/:id/details",
+  upload.fields([
+    { name: "castImages", maxCount: 20 },
+  ]),
+  addMovieDetails
+);
+
+router.put(
+  "/:id/details",
+  upload.fields([
+    { name: "castImages", maxCount: 20 },
+  ]),
+  updateMovieDetails
+);
 
 export default router;

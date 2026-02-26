@@ -52,18 +52,8 @@ export default function AdminDashboard() {
             🎬 Movie Management
           </h2>
 
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="
-              px-4 py-2 rounded-lg
-              bg-[var(--primary-color)]
-              text-white
-              hover:opacity-90
-              transition
-            "
-          >
-            {showForm ? "Close Form" : "Add Movie"}
-          </button>
+          {/* button removed Becuse not required */}
+          
         </div>
 
         {/* Add Movie Form */}

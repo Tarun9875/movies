@@ -1,9 +1,8 @@
-// frontend/src/pages/customer/MovieDetails.tsx
-
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageContainer from "../../components/layout/PageContainer";
-import { moviesData } from "../../assets/images/movies/moviesData";
+import api, { BASE_URL } from "../../services/axios";
+import { toast } from "react-toastify";
 import { useAppSelector } from "../../app/hooks";
 
 export default function MovieDetails() {
@@ -11,67 +10,129 @@ export default function MovieDetails() {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
 
+  const [movie, setMovie] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [showTrailer, setShowTrailer] = useState(false);
 
-  const movie = moviesData.find((m) => m.id === id);
+  /* ================= FETCH MOVIE ================= */
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const res = await api.get(`/movies/${id}`);
+        setMovie(res.data.movie);
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message || "Failed to load movie ❌"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (id) fetchMovie();
+  }, [id]);
+
+  /* ================= LOADING ================= */
+  if (loading) {
+    return (
+      <PageContainer>
+        <div className="py-40 text-center text-lg">
+          🎬 Loading movie details...
+        </div>
+      </PageContainer>
+    );
+  }
+
+  /* ================= NOT FOUND ================= */
   if (!movie) {
     return (
       <PageContainer>
-        <div
-          className="py-40 text-center text-xl"
-          style={{ color: "var(--text-color)" }}
-        >
+        <div className="py-40 text-center text-xl">
           🎬 Movie Not Found
         </div>
       </PageContainer>
     );
   }
 
+  /* ================= IMAGE FIX ================= */
+  const posterUrl = movie.poster?.startsWith("http")
+    ? movie.poster
+    : `${BASE_URL}${movie.poster}`;
+
+  /* ================= CAST IMAGE FIX ================= */
+  const getCastImage = (image: string) => {
+    if (!image) return "https://via.placeholder.com/150?text=No+Image";
+    return image.startsWith("http")
+      ? image
+      : `${BASE_URL}${image}`;
+  };
+
+  /* ================= YOUTUBE EMBED FIX ================= */
+  const getEmbedUrl = (url: string) => {
+    if (!url) return "";
+
+    if (url.includes("youtu.be")) {
+      const id = url.split("youtu.be/")[1]?.split("?")[0];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    if (url.includes("watch?v=")) {
+      const id = url.split("watch?v=")[1]?.split("&")[0];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    return url;
+  };
+
+  /* ================= BOOK BUTTON ================= */
   const handleBookNow = () => {
     if (!user) {
       navigate("/login", {
-        state: { redirectTo: `/shows/${movie.id}/seats` },
+        state: { redirectTo: `/movies/${movie._id}/shows` },
       });
     } else {
-      navigate(`/shows/${movie.id}/seats`);
+      navigate(`/movies/${movie._id}/shows`);
     }
   };
 
   return (
     <PageContainer>
-      <section className="min-h-screen py-16 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-14">
+      <section className="min-h-screen py-20 px-6">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start">
 
-          {/* Poster */}
-          <div className="flex justify-center">
-            <img
-              src={movie.poster}
-              alt={movie.title}
-              className="rounded-2xl shadow-xl w-full max-w-md hover:scale-105 transition duration-500"
-              style={{ border: "1px solid var(--border-color)" }}
-            />
+          {/* ================= POSTER ================= */}
+          <div className="flex justify-center group">
+            <div className="relative w-full max-w-xl transition-all duration-500 transform group-hover:scale-105 group-hover:-translate-y-3">
+
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500/30 via-pink-500/20 to-orange-400/30 blur-3xl opacity-0 group-hover:opacity-100 transition duration-500" />
+
+              <img
+                src={posterUrl}
+                alt={movie.title}
+                className="relative w-full rounded-3xl shadow-2xl border transition-all duration-500 group-hover:shadow-red-500/40"
+                style={{ borderColor: "var(--border-color)" }}
+                onError={(e: any) => {
+                  e.target.src =
+                    "https://via.placeholder.com/500x750?text=No+Image";
+                }}
+              />
+            </div>
           </div>
 
-          {/* Details Card */}
+          {/* ================= DETAILS ================= */}
           <div
-            className="rounded-2xl p-10 shadow-lg transition-all duration-300"
+            className="rounded-3xl p-12 shadow-xl"
             style={{
               backgroundColor: "var(--card-bg)",
               border: "1px solid var(--border-color)",
             }}
           >
-            {/* Title */}
-            <h1
-              className="text-4xl font-bold mb-6"
-              style={{ color: "var(--text-color)" }}
-            >
+            <h1 className="text-5xl font-bold mb-6">
               {movie.title}
             </h1>
 
-            {/* Description */}
             <p
-              className="mb-6 leading-relaxed"
+              className="mb-8 leading-relaxed text-lg"
               style={{ color: "var(--muted-text)" }}
             >
               {movie.description}
@@ -81,50 +142,29 @@ export default function MovieDetails() {
             {movie.trailer && (
               <button
                 onClick={() => setShowTrailer(true)}
-                className="mb-8 px-6 py-2 rounded-lg font-medium text-white bg-black hover:opacity-80 transition"
+                className="mb-8 px-6 py-3 rounded-xl text-white bg-black hover:opacity-80 transition"
               >
                 ▶ Watch Trailer
               </button>
             )}
 
             {/* Movie Info */}
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
-              style={{ color: "var(--text-color)" }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10 text-base">
+              <p><strong>🎥 Language:</strong> {movie.language}</p>
+              <p><strong>⏱ Duration:</strong> {movie.duration} min</p>
+              <p><strong>⭐ Rating:</strong> {movie.rating}</p>
+              <p><strong>🎭 Genre:</strong> {movie.genre}</p>
               <p>
-                <span className="font-semibold">🎥 Language:</span>{" "}
-                {movie.language}
+                <strong>📅 Release:</strong>{" "}
+                {movie.releaseDate?.slice(0, 10)}
               </p>
-              <p>
-                <span className="font-semibold">⏱ Duration:</span>{" "}
-                {movie.duration} min
-              </p>
-              <p>
-                <span className="font-semibold">⭐ Rating:</span>{" "}
-                {movie.rating}
-              </p>
-              <p>
-                <span className="font-semibold">🎭 Genre:</span>{" "}
-                {movie.genre}
-              </p>
-              <p>
-                <span className="font-semibold">📅 Release:</span>{" "}
-                {movie.releaseDate}
-              </p>
-              <p>
-                <span className="font-semibold">🎬 Director:</span>{" "}
-                {movie.director}
-              </p>
+              <p><strong>🎬 Director:</strong> {movie.director}</p>
             </div>
 
-            {/* Cast Section */}
+            {/* ================= CAST ================= */}
             {movie.cast && movie.cast.length > 0 && (
-              <div className="mt-10">
-                <h3
-                  className="text-xl font-semibold mb-4"
-                  style={{ color: "var(--text-color)" }}
-                >
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold mb-4">
                   👥 Cast
                 </h3>
 
@@ -135,17 +175,14 @@ export default function MovieDetails() {
                       className="flex flex-col items-center min-w-[120px] hover:scale-105 transition duration-300"
                     >
                       <img
-                        src={actor.image}
+                        src={getCastImage(actor.image)}
                         alt={actor.name}
                         className="w-24 h-24 rounded-full object-cover shadow-md"
                         style={{
                           border: "2px solid var(--border-color)",
                         }}
                       />
-                      <p
-                        className="mt-2 text-sm font-semibold text-center"
-                        style={{ color: "var(--text-color)" }}
-                      >
+                      <p className="mt-2 text-sm font-semibold text-center">
                         {actor.name}
                       </p>
                       <p
@@ -160,20 +197,20 @@ export default function MovieDetails() {
               </div>
             )}
 
-            {/* Book Button */}
+            {/* ================= BOOK ================= */}
             <button
               onClick={handleBookNow}
-              className="mt-10 w-full py-3 rounded-xl font-semibold text-white bg-red-600 hover:bg-red-700 hover:shadow-lg hover:shadow-red-500/40 transition-all duration-300"
+              className="mt-10 w-full py-4 rounded-2xl font-semibold text-lg text-white bg-gradient-to-r from-red-600 to-pink-500 hover:from-red-700 hover:to-pink-600 hover:shadow-lg hover:shadow-red-500/40 transition-all duration-300"
             >
               🎟 Book Tickets
             </button>
           </div>
         </div>
 
-        {/* Trailer Modal */}
+        {/* ================= TRAILER MODAL ================= */}
         {showTrailer && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="relative w-[90%] md:w-[750px] aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+            <div className="relative w-[90%] md:w-[800px] aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
               <button
                 onClick={() => setShowTrailer(false)}
                 className="absolute top-3 right-3 bg-white px-3 py-1 rounded-md shadow"
@@ -182,7 +219,7 @@ export default function MovieDetails() {
               </button>
 
               <iframe
-                src={movie.trailer?.replace("watch?v=", "embed/")}
+                src={getEmbedUrl(movie.trailer)}
                 title="Trailer"
                 className="w-full h-full"
                 allowFullScreen

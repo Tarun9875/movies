@@ -6,7 +6,6 @@ import axios from "axios";
  * ===============================
  *  BASE URL CONFIG
  * ===============================
- * Change this when deploying
  */
 export const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -14,18 +13,24 @@ export const BASE_URL =
 
 /**
  * ===============================
+ *  API BASE URL
+ * ===============================
+ */
+export const API_URL = `${BASE_URL}/api`;
+
+/**
+ * ===============================
  *  AXIOS INSTANCE
  * ===============================
  */
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`,
+  baseURL: API_URL,
   withCredentials: true,
 });
 
 /**
  * ===============================
  *  REQUEST INTERCEPTOR
- *  Attach JWT Token Automatically
  * ===============================
  */
 api.interceptors.request.use(
@@ -43,8 +48,7 @@ api.interceptors.request.use(
 
 /**
  * ===============================
- *  RESPONSE INTERCEPTOR (Optional)
- *  Auto logout on 401
+ *  RESPONSE INTERCEPTOR
  * ===============================
  */
 api.interceptors.response.use(
